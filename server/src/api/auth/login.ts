@@ -45,7 +45,7 @@ export default async function login(ctx: Context) {
 
     setCookie(ctx, tokens);
 
-    ctx.body = ctx.state.admin_id;
+    ctx.body = admin.id;
   } catch (err) {
     if (err instanceof Error) {
       ctx.throw(500, err);
