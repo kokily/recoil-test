@@ -1,8 +1,6 @@
-import Joi from 'joi';
 import { Context } from 'koa';
 import { getManager, getRepository } from 'typeorm';
 import { Notice } from '../../entities/Notice';
-import { validateBody } from '../../libs/utils';
 
 export default async function listNotices(ctx: Context) {
   const { lastId, title, tag }: { lastId?: string; title?: string; tag?: string } =

@@ -1,70 +1,43 @@
-import { useRecoilValueLoadable } from 'recoil';
-import { useRouter } from 'next/router';
+import React from 'react';
 import axios from 'axios';
-import { listNotices } from '../../store/notices';
-import React, { useCallback, useState } from 'react';
+import useListNotices from '../../libs/hooks/useListNotices';
 
 function ListNoticesPage() {
-  const router = useRouter();
-  const [title, setTitle] = useState('');
-  const [search, setSearch] = useState('');
-  const [tag, setTag] = useState('');
-  const notices = useRecoilValueLoadable(listNotices({ title, tag }));
+  const { data, loading, error, search, onChange, onSearch, onTag, onBack, onDetail } =
+    useListNotices();
 
-  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-  }, []);
+  if (loading)
+    return (
+      <div>
+        <h3>Loading...</h3>
+      </div>
+    );
 
-  const onSearch = (e: React.MouseEvent) => {
-    e.preventDefault();
+  if (error) return <div>Error</div>;
 
-    if (search === '') {
-      return;
-    } else {
-      setTitle(search);
-    }
-  };
-
-  const onTag = (tag: string) => {
-    setTag(tag);
-  };
-
-  switch (notices.state) {
-    case 'loading':
-      return (
-        <div>
-          <h2>Loading...</h2>
-        </div>
-      );
-    case 'hasValue':
-      return (
-        <div>
-          <button onClick={() => router.back()}>뒤로</button>
-          <div>
-            <input type="text" name="title" value={search} onChange={onChange} />
-            <button onClick={onSearch}>검색</button>
+  return (
+    <div>
+      <button onClick={onBack}>처음으로</button>
+      <div>
+        <input type="text" name="title" value={search} onChange={onChange} />
+        <button onClick={onSearch}>검색</button>
+      </div>
+      <div>
+        {data.map((notice) => (
+          <div key={notice.id + new Date()}>
+            <h3 onClick={() => onDetail(notice.id)}>{notice.title}</h3>
+            <ul>
+              {notice.tags.map((tag) => (
+                <li key={tag} onClick={() => onTag(tag)}>
+                  #{tag}
+                </li>
+              ))}
+            </ul>
           </div>
-          <div>
-            {notices.contents.map((notice) => (
-              <div key={notice.id}>
-                <h3 onClick={() => router.push(`/notices/${notice.id}`)}>
-                  {notice.title}
-                </h3>
-                <ul>
-                  {notice.tags.map((tag) => (
-                    <li key={tag} onClick={() => onTag(tag)}>
-                      #{tag}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    case 'hasError':
-      return <div>Error</div>;
-  }
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export const getServerSideProps = async () => {

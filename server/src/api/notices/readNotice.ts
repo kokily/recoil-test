@@ -3,10 +3,12 @@ import { getRepository } from 'typeorm';
 import { Notice } from '../../entities/Notice';
 
 export default async function readNotice(ctx: Context) {
-  const { id }: { id?: string } = ctx.query;
+  const { id }: { id: string } = ctx.params;
 
   try {
     const notice = await getRepository(Notice).findOne(id);
+
+    console.log(id);
 
     if (!notice) {
       ctx.status = 404;

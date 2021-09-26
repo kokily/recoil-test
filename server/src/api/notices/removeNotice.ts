@@ -3,7 +3,7 @@ import { getRepository } from 'typeorm';
 import { Notice } from '../../entities/Notice';
 
 export default async function removeNotice(ctx: Context) {
-  const { id }: { id?: string } = ctx.query;
+  const { id }: { id: string } = ctx.params;
 
   try {
     if (id) {

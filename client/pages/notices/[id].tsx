@@ -28,6 +28,9 @@ function ReadNoticePage() {
           </div>
           <div>
             <h2>{data.title}</h2>
+
+            {data.thumbnail && <img src={data.thumbnail} alt={data.title} />}
+
             <Markdown markdown={data.body} />
             <div>
               {data.tags.map((tag) => (

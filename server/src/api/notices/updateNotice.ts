@@ -5,7 +5,7 @@ import { Notice } from '../../entities/Notice';
 import { cleanAllNullArgs, validateBody } from '../../libs/utils';
 
 export default async function updateNotice(ctx: Context) {
-  const { id }: { id?: string } = ctx.query;
+  const { id }: { id: string } = ctx.params;
 
   type RequestBody = {
     title?: string;
@@ -23,10 +23,10 @@ export default async function updateNotice(ctx: Context) {
 
   if (!validateBody(ctx, schema)) return;
 
+  const notNull = cleanAllNullArgs(ctx.request.body);
+
   try {
     if (id) {
-      const notNull = cleanAllNullArgs(ctx.request.body);
-
       await getRepository(Notice).update({ id }, { ...notNull, updated_at: new Date() });
 
       ctx.status = 200;

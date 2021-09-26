@@ -1,33 +1,25 @@
-import { useRecoilValueLoadable } from 'recoil';
-import Link from 'next/link';
-import { getMe } from '../store/auth';
 import axios from 'axios';
+import Link from 'next/link';
+import useAdmin from '../libs/hooks/useAdmin';
 
 axios.defaults.baseURL = 'http://localhost:4000/api';
 axios.defaults.withCredentials = true;
 
 function IndexPage() {
-  const me = useRecoilValueLoadable(getMe);
+  const { admin, onLogout } = useAdmin();
 
-  const onLogout = async () => {
-    try {
-      await axios.post('/auth/logout');
-
-      document.location.href = '/';
-    } catch (err) {
-      if (err instanceof Error) {
-        alert(err);
-      }
-    }
-  };
-
-  switch (me.state) {
+  switch (admin.state) {
     case 'hasValue':
       return (
         <div>
           <div>
             <Link href="/notices">
               <a>공지사항</a>
+            </Link>
+          </div>
+          <div>
+            <Link href="/notices/add">
+              <a>공지 작성</a>
             </Link>
           </div>
           <div>

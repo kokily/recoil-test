@@ -2,6 +2,8 @@ import { AppProps } from 'next/app';
 import { RecoilRoot } from 'recoil';
 import { meState } from '../store/auth';
 import { notices } from '../store/notices';
+import 'react-toastify/dist/ReactToastify.css';
+import 'react-quill/dist/quill.snow.css';
 
 const all_atoms = {
   meState: meState,

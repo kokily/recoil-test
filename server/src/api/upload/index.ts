@@ -1,5 +1,6 @@
 import { Context, Next } from 'koa';
 import Router from 'koa-router';
+import uploadImage from '../../libs/upload';
 
 const upload = new Router();
 

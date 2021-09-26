@@ -1,21 +1,14 @@
 import axios from 'axios';
 import qs from 'qs';
 import { atom, selectorFamily } from 'recoil';
+import _concat from 'lodash/concat';
 
 axios.defaults.baseURL = 'http://localhost:4000/api';
 axios.defaults.withCredentials = true;
 
-export const notices = atom<{
-  notices: NoticeType[];
-  hasMoreNotices: boolean;
-  notice: NoticeType | null;
-}>({
+export const notices = atom<NoticeType[]>({
   key: 'notices',
-  default: {
-    notices: [],
-    hasMoreNotices: true,
-    notice: null,
-  },
+  default: [],
 });
 
 type QueryType = {
@@ -24,15 +17,24 @@ type QueryType = {
   lastId?: string;
 };
 
-export const listNotices = selectorFamily<NoticeType[], QueryType>({
+type ReturnType = {
+  data: NoticeType[];
+  hasMoreNotices: boolean;
+};
+
+export const listNotices = selectorFamily<ReturnType, QueryType>({
   key: 'listNotices',
   get:
     ({ title, tag, lastId }) =>
     async () => {
       const queryString = qs.stringify({ title, tag, lastId });
       const res = await axios.get(`/notices?${queryString}`);
+      const hasMoreNotices = res.data.length === 20;
 
-      return res.data;
+      return {
+        data: res.data,
+        hasMoreNotices,
+      };
     },
 });
 
