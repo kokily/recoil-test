@@ -14,7 +14,7 @@ export const notices = atom<NoticeType[]>({
 type QueryType = {
   title?: string;
   tag?: string;
-  lastId?: string;
+  page?: number;
 };
 
 type ReturnType = {
@@ -22,21 +22,19 @@ type ReturnType = {
   hasMoreNotices: boolean;
 };
 
+/*
 export const listNotices = selectorFamily<ReturnType, QueryType>({
   key: 'listNotices',
   get:
-    ({ title, tag, lastId }) =>
+    ({ title, tag, page }) =>
     async () => {
-      const queryString = qs.stringify({ title, tag, lastId });
+      const queryString = qs.stringify({ title, tag, page });
       const res = await axios.get(`/notices?${queryString}`);
-      const hasMoreNotices = res.data.length === 20;
 
-      return {
-        data: res.data,
-        hasMoreNotices,
-      };
+      return res.data;
     },
 });
+*/
 
 // args (Return type, arg)
 export const readNotice = selectorFamily<NoticeType, string>({

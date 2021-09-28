@@ -1,8 +1,10 @@
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
-import { useRecoilState, useRecoilValueLoadable } from 'recoil';
-import _concat from 'lodash/concat';
-import { listNotices, notices } from '../../store/notices';
+import { useRecoilState } from 'recoil';
+import qs from 'qs';
+import axios from 'axios';
+import { notices } from '../../store/notices';
+import { toast } from 'react-toastify';
 
 export default function useListNotices() {
   const router = useRouter();
@@ -10,35 +12,30 @@ export default function useListNotices() {
   const [title, setTitle] = useState('');
   const [search, setSearch] = useState('');
   const [tag, setTag] = useState('');
-  const [lastId, setLastId] = useState('');
+  const [page, setPage] = useState(1);
 
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState<Error>(null);
   const [data, setData] = useRecoilState<NoticeType[]>(notices);
-  const [moreNotices, setMoreNotices] = useState<boolean>(true);
-  const dataResponse = useRecoilValueLoadable(listNotices({ title, tag, lastId }));
+  // const dataResponse = useRecoilValueLoadable(listNotices({ title, tag, page }));
 
-  const fetchData = useCallback((): void => {
-    if (dataResponse === null || dataResponse === undefined) {
-      return;
+  const fetchData = async () => {
+    setLoading(true);
+
+    try {
+      const queryString = qs.stringify({ title, tag, page });
+      const res = await axios.get(`/notices?${queryString}`);
+
+      setData(res.data);
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      if (err instanceof Error) {
+        setError(err);
+        toast.error(err);
+      }
     }
-
-    console.log(dataResponse.state);
-
-    switch (dataResponse.state) {
-      case 'loading':
-        setLoading(true);
-        break;
-      case 'hasError':
-        setLoading(false);
-        setError(true);
-        break;
-      case 'hasValue':
-        setLoading(false);
-        setData(_concat(data, dataResponse.contents.data));
-        break;
-    }
-  }, [setData, dataResponse.state]);
+  };
 
   const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -67,31 +64,28 @@ export default function useListNotices() {
   };
 
   useEffect(() => {
-    if (data.length === 0) {
-      fetchData();
-    }
+    fetchData();
+  }, [page]);
+
+  useEffect(() => {
+    const scrollY = window.scrollY;
+    const clientHeight = document.documentElement.clientHeight;
+    const scrollHeight = document.documentElement.scrollHeight;
 
     function onScroll() {
-      if (dataResponse.contents.hasMoreNotices) {
-        if (
-          window.scrollY + document.documentElement.clientHeight >
-          document.documentElement.scrollHeight - 300
-        ) {
-          setMoreNotices(true);
-          setLastId(data[data.length - 1]?.id);
-          fetchData();
-        }
-      } else {
-        setMoreNotices(false);
+      if (scrollY + clientHeight > scrollHeight - 300) {
+        setPage(page + 1);
       }
     }
+
+    console.log(page);
 
     window.addEventListener('scroll', onScroll);
 
     return () => {
       window.removeEventListener('scroll', onScroll);
     };
-  }, [fetchData]);
+  }, [page]);
 
   return {
     data,

@@ -3,13 +3,19 @@ import { getManager, getRepository } from 'typeorm';
 import { Notice } from '../../entities/Notice';
 
 export default async function listNotices(ctx: Context) {
-  const { lastId, title, tag }: { lastId?: string; title?: string; tag?: string } =
-    ctx.query;
+  const { page, title, tag }: { page?: string; title?: string; tag?: string } = ctx.query;
+  const currentPage = parseInt(page || '1', 10);
+
+  if (currentPage > 1) {
+    ctx.status = 400;
+    return;
+  }
 
   try {
     const query = await getManager()
       .createQueryBuilder(Notice, 'notices')
       .limit(20)
+      .skip((currentPage - 1) * 10)
       .orderBy('notices.created_at', 'DESC')
       .addOrderBy('notices.id', 'DESC');
 
@@ -22,28 +28,6 @@ export default async function listNotices(ctx: Context) {
     if (tag) {
       query.andWhere(":tag = ANY (string_to_array(notices.tags, ','))", {
         tag,
-      });
-    }
-
-    if (lastId) {
-      const notice = await getRepository(Notice).findOne({ id: lastId });
-
-      if (!notice) {
-        ctx.status = 404;
-        ctx.body = {
-          name: 'NO_CONTENT',
-        };
-
-        return;
-      }
-
-      query.andWhere('notices.created_at < :date', {
-        date: notice.created_at,
-      });
-
-      query.orWhere('notices.created_at = :date AND notices.id < :id', {
-        date: notice.created_at,
-        id: notice.id,
       });
     }
 
