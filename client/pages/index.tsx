@@ -9,6 +9,21 @@ function IndexPage() {
   const { admin, onLogout } = useAdmin();
 
   switch (admin.state) {
+    case 'loading':
+      return (
+        <div>
+          <h2>Loading...</h2>
+        </div>
+      );
+    case 'hasError':
+      return (
+        <div>
+          <h2>Test</h2>
+          <Link href="/login">
+            <a>로그인</a>
+          </Link>
+        </div>
+      );
     case 'hasValue':
       return (
         <div>
@@ -25,21 +40,6 @@ function IndexPage() {
           <div>
             <button onClick={onLogout}>로그아웃</button>
           </div>
-        </div>
-      );
-    case 'loading':
-      return (
-        <div>
-          <h2>Loading...</h2>
-        </div>
-      );
-    case 'hasError':
-      return (
-        <div>
-          <h2>Test</h2>
-          <Link href="/login">
-            <a>로그인</a>
-          </Link>
         </div>
       );
   }

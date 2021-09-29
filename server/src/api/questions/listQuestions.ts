@@ -21,7 +21,7 @@ export default async function listQuestions(ctx: Context) {
   try {
     const query = await getManager()
       .createQueryBuilder(Question, 'questions')
-      .limit(10)
+      .take(10)
       .skip((currentPage - 1) * 10)
       .orderBy('questions.created_at', 'DESC');
 

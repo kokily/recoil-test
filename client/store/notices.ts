@@ -22,20 +22,6 @@ type ReturnType = {
   hasMoreNotices: boolean;
 };
 
-/*
-export const listNotices = selectorFamily<ReturnType, QueryType>({
-  key: 'listNotices',
-  get:
-    ({ title, tag, page }) =>
-    async () => {
-      const queryString = qs.stringify({ title, tag, page });
-      const res = await axios.get(`/notices?${queryString}`);
-
-      return res.data;
-    },
-});
-*/
-
 // args (Return type, arg)
 export const readNotice = selectorFamily<NoticeType, string>({
   key: 'readNotice',

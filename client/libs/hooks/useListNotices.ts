@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import qs from 'qs';
 import axios from 'axios';
+import _concat from 'lodash/concat';
 import { notices } from '../../store/notices';
 import { toast } from 'react-toastify';
 
@@ -17,7 +18,6 @@ export default function useListNotices() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error>(null);
   const [data, setData] = useRecoilState<NoticeType[]>(notices);
-  // const dataResponse = useRecoilValueLoadable(listNotices({ title, tag, page }));
 
   const fetchData = async () => {
     setLoading(true);
@@ -26,7 +26,7 @@ export default function useListNotices() {
       const queryString = qs.stringify({ title, tag, page });
       const res = await axios.get(`/notices?${queryString}`);
 
-      setData(res.data);
+      setData(_concat(data, res.data));
       setLoading(false);
     } catch (err) {
       setLoading(false);
@@ -77,8 +77,6 @@ export default function useListNotices() {
         setPage(page + 1);
       }
     }
-
-    console.log(page);
 
     window.addEventListener('scroll', onScroll);
 

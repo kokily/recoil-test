@@ -6,7 +6,7 @@ export default async function listNotices(ctx: Context) {
   const { page, title, tag }: { page?: string; title?: string; tag?: string } = ctx.query;
   const currentPage = parseInt(page || '1', 10);
 
-  if (currentPage > 1) {
+  if (currentPage < 1) {
     ctx.status = 400;
     return;
   }
@@ -14,8 +14,8 @@ export default async function listNotices(ctx: Context) {
   try {
     const query = await getManager()
       .createQueryBuilder(Notice, 'notices')
-      .limit(20)
-      .skip((currentPage - 1) * 10)
+      .take(20)
+      .skip((currentPage - 1) * 20)
       .orderBy('notices.created_at', 'DESC')
       .addOrderBy('notices.id', 'DESC');
 
